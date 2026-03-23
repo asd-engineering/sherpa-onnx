@@ -246,6 +246,7 @@ if(SHERPA_ONNX_ENABLE_QNN)
     ./qnn/offline-sense-voice-model-qnn.cc
     ./qnn/offline-paraformer-model-qnn.cc
     ./qnn/offline-zipformer-ctc-model-qnn.cc
+    ./qnn/offline-whisper-model-qnn.cc
     ./qnn/qnn-backend.cc
     ./qnn/qnn-model.cc
     ./qnn/utils.cc
