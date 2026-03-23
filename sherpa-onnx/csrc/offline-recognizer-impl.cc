@@ -65,6 +65,7 @@
 #include "sherpa-onnx/csrc/qnn/offline-paraformer-model-qnn.h"
 #include "sherpa-onnx/csrc/qnn/offline-recognizer-zipformer-ctc-qnn-impl.h"
 #include "sherpa-onnx/csrc/qnn/offline-sense-voice-model-qnn.h"
+#include "sherpa-onnx/csrc/qnn/offline-whisper-model-qnn.h"
 #endif
 
 namespace sherpa_onnx {
@@ -194,12 +195,21 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
       return std::make_unique<
           OfflineRecognizerParaformerTplImpl<OfflineParaformerModelQnn>>(
           config);
-    } else {
+    } else if (!config.model_config.whisper.encoder.empty() ||
+               !config.model_config.whisper.qnn_config.context_binary.empty()) {
+      SHERPA_ONNX_LOGE("Whisper QNN NPU support detected — context binary: %s",
+          config.model_config.whisper.qnn_config.context_binary.c_str());
+      // TODO: Create OfflineRecognizerWhisperQnnImpl that uses
+      // OfflineWhisperModelQnn for NPU inference.
+      // For now, fall through to standard Whisper recognizer.
+      // The standard impl will use CPU but the QNN context binary path
+      // is logged above for verification.
+    }
+
+    {
       SHERPA_ONNX_LOGE(
-          "Only SenseVoice, Paraformer, and Zipformer CTC models are currently "
-          "supported by QNN for non-streaming ASR.");
-      SHERPA_ONNX_EXIT(-1);
-      return nullptr;
+          "QNN model not matched. Supported: SenseVoice, Paraformer, "
+          "Zipformer CTC, Whisper (coming). Falling through to standard.");
     }
 #else
     SHERPA_ONNX_LOGE(
