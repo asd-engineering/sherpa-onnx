@@ -66,6 +66,7 @@
 #include "sherpa-onnx/csrc/qnn/offline-recognizer-zipformer-ctc-qnn-impl.h"
 #include "sherpa-onnx/csrc/qnn/offline-sense-voice-model-qnn.h"
 #include "sherpa-onnx/csrc/qnn/offline-whisper-model-qnn.h"
+#include "sherpa-onnx/csrc/qnn/offline-recognizer-whisper-qnn-impl.h"
 #endif
 
 namespace sherpa_onnx {
@@ -195,21 +196,16 @@ std::unique_ptr<OfflineRecognizerImpl> OfflineRecognizerImpl::Create(
       return std::make_unique<
           OfflineRecognizerParaformerTplImpl<OfflineParaformerModelQnn>>(
           config);
-    } else if (!config.model_config.whisper.encoder.empty() ||
-               !config.model_config.whisper.qnn_config.context_binary.empty()) {
-      SHERPA_ONNX_LOGE("Whisper QNN NPU support detected — context binary: %s",
+    } else if (!config.model_config.whisper.qnn_config.context_binary.empty()) {
+      SHERPA_ONNX_LOGE("Creating Whisper QNN recognizer — context binary: %s",
           config.model_config.whisper.qnn_config.context_binary.c_str());
-      // TODO: Create OfflineRecognizerWhisperQnnImpl that uses
-      // OfflineWhisperModelQnn for NPU inference.
-      // For now, fall through to standard Whisper recognizer.
-      // The standard impl will use CPU but the QNN context binary path
-      // is logged above for verification.
-    }
-
-    {
+      return std::make_unique<OfflineRecognizerWhisperQnnImpl>(config);
+    } else {
       SHERPA_ONNX_LOGE(
           "QNN model not matched. Supported: SenseVoice, Paraformer, "
-          "Zipformer CTC, Whisper (coming). Falling through to standard.");
+          "Zipformer CTC, Whisper. Please provide context_binary.");
+      SHERPA_ONNX_EXIT(-1);
+      return nullptr;
     }
 #else
     SHERPA_ONNX_LOGE(
