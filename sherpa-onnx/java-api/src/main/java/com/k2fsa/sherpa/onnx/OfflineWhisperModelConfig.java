@@ -10,6 +10,7 @@ public class OfflineWhisperModelConfig {
     private final int tailPaddings;
     private final boolean enableTokenTimestamps;
     private final boolean enableSegmentTimestamps;
+    private final QnnConfig qnnConfig;
 
     private OfflineWhisperModelConfig(Builder builder) {
         this.encoder = builder.encoder;
@@ -19,6 +20,7 @@ public class OfflineWhisperModelConfig {
         this.tailPaddings = builder.tailPaddings;
         this.enableTokenTimestamps = builder.enableTokenTimestamps;
         this.enableSegmentTimestamps = builder.enableSegmentTimestamps;
+        this.qnnConfig = builder.qnnConfig;
     }
 
     public static Builder builder() {
@@ -62,6 +64,7 @@ public class OfflineWhisperModelConfig {
         private int tailPaddings = 1000; // number of frames to pad
         private boolean enableTokenTimestamps = false;
         private boolean enableSegmentTimestamps = false;
+        private QnnConfig qnnConfig = QnnConfig.builder().build();
 
         public OfflineWhisperModelConfig build() {
             return new OfflineWhisperModelConfig(this);
@@ -99,6 +102,11 @@ public class OfflineWhisperModelConfig {
 
         public Builder setEnableSegmentTimestamps(boolean enableSegmentTimestamps) {
             this.enableSegmentTimestamps = enableSegmentTimestamps;
+            return this;
+        }
+
+        public Builder setQnnConfig(QnnConfig qnnConfig) {
+            this.qnnConfig = qnnConfig;
             return this;
         }
     }

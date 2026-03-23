@@ -143,6 +143,26 @@ static OfflineRecognizerConfig GetOfflineConfig(JNIEnv *env, jobject config,
                             enableSegmentTimestamps, whisper_config_cls,
                             whisper_config);
 
+  // Read Whisper QNN config
+  fid = env->GetFieldID(whisper_config_cls, "qnnConfig",
+                        "Lcom/k2fsa/sherpa/onnx/QnnConfig;");
+  if (fid != nullptr) {
+    jobject qnn_config = env->GetObjectField(whisper_config, fid);
+    if (qnn_config != nullptr) {
+      jclass qnn_config_cls = env->GetObjectClass(qnn_config);
+      SHERPA_ONNX_JNI_READ_STRING(
+          ans.model_config.whisper.qnn_config.backend_lib, backendLib,
+          qnn_config_cls, qnn_config);
+      SHERPA_ONNX_JNI_READ_STRING(
+          ans.model_config.whisper.qnn_config.context_binary, contextBinary,
+          qnn_config_cls, qnn_config);
+      SHERPA_ONNX_JNI_READ_STRING(
+          ans.model_config.whisper.qnn_config.system_lib, systemLib,
+          qnn_config_cls, qnn_config);
+    }
+  }
+  if (env->ExceptionCheck()) env->ExceptionClear();
+
   fid = env->GetFieldID(model_config_cls, "fireRedAsr",
                         "Lcom/k2fsa/sherpa/onnx/OfflineFireRedAsrModelConfig;");
   jobject fire_red_asr_config = env->GetObjectField(model_config, fid);
